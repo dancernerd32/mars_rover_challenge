@@ -27,7 +27,7 @@ class Rover
     @facing = side == :right ? compass[(index + 1) % 4] : compass[(index - 1) % 4]
   end
 
-  def move
+  def get_new_coords
     new_x_coord = case facing
     when "E"
       x_coord + 1
@@ -45,9 +45,13 @@ class Rover
     when "E", "W"
       y_coord
     end
+    [new_x_coord, new_y_coord]
+  end
 
-    @x_coord = new_x_coord
-    @y_coord = new_y_coord
+  def move
+    new_coords = get_new_coords
+    @x_coord = get_new_coords[0]
+    @y_coord = get_new_coords[1]
   end
 
   def execute
