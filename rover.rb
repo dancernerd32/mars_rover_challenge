@@ -1,11 +1,12 @@
 class Rover
   attr_accessor :x_coord, :y_coord, :facing
-  attr_reader :directions
-  def initialize(x_coord, y_coord, facing, directions)
+  attr_reader :directions, :rover_deployment
+  def initialize(x_coord, y_coord, facing, directions, rover_deployment)
     @x_coord = x_coord
     @y_coord = y_coord
     @facing = facing
     @directions = direction_list(directions)
+    @rover_deployment = rover_deployment
   end
 
   def direction_list(directions)
@@ -48,10 +49,9 @@ class Rover
     [new_x_coord, new_y_coord]
   end
 
-  def move
-    new_coords = get_new_coords
-    @x_coord = get_new_coords[0]
-    @y_coord = get_new_coords[1]
+  def move(new_coords)
+    @x_coord = new_coords[0]
+    @y_coord = new_coords[1]
   end
 
   def execute
@@ -60,16 +60,18 @@ class Rover
       when :left, :right
         turn(direction)
       when :move
-        move unless will_crash? || will_fall?
+        new_coords = get_new_coords
+        move(new_coords) unless will_crash?(new_coords) || will_fall?(new_coords)
       end
     end
   end
 
-  def will_crash?
-    false
+  def will_crash?(new_coords)
+    rover_deployment.rovers.map{|rover| [rover.x_coord, rover.y_coord]} == new_coords
   end
 
-  def will_fall?
-    false
+  def will_fall?(new_coords)
+    max_coords = rover_deployment.max_coords
+    max_coords[0] < new_coords[0] || max_coords[1] < new_coords[1]
   end
 end
