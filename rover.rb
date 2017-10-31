@@ -29,8 +29,10 @@ class Rover
   end
 
   def move(new_coords)
-    @x_coord = new_coords[0]
-    @y_coord = new_coords[1]
+    unless will_crash?(new_coords) || will_fall?(new_coords)
+      @x_coord = new_coords[0]
+      @y_coord = new_coords[1]
+    end
   end
 
   def rove
@@ -40,17 +42,18 @@ class Rover
         turn(direction)
       when "M"
         new_coords = get_move_coords
-        move(new_coords) unless will_crash?(new_coords) || will_fall?(new_coords)
+        move(new_coords)
       end
     end
   end
 
   def will_crash?(new_coords)
-    rover_deployment.rovers.map{|rover| [rover.x_coord, rover.y_coord]} == new_coords
+    rover_deployment.rovers.map{|rover| [rover.x_coord, rover.y_coord]}.include?(new_coords)
   end
 
   def will_fall?(new_coords)
     max_coords = rover_deployment.max_coords
-    max_coords[0] < new_coords[0] || max_coords[1] < new_coords[1]
+    max_coords[0] < new_coords[0] || max_coords[1] < new_coords[1] ||
+    new_coords[0] < 0 || new_coords[1] < 0
   end
 end
