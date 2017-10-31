@@ -5,48 +5,27 @@ class Rover
     @x_coord = x_coord
     @y_coord = y_coord
     @facing = facing
-    @directions = direction_list(directions)
+    @directions = directions.split("")
     @rover_deployment = rover_deployment
-  end
-
-  def direction_list(directions)
-    directions.split("").map do |direction|
-      case direction
-      when "L"
-        :left
-      when "R"
-        :right
-      when "M"
-        :move
-      end
-    end
   end
 
   def turn(side)
     compass = ["N", "E", "S", "W"]
     index = compass.index(facing)
-    @facing = side == :right ? compass[(index + 1) % 4] : compass[(index - 1) % 4]
+    @facing = side == "R" ? compass[(index + 1) % 4] : compass[(index - 1) % 4]
   end
 
-  def get_new_coords
-    new_x_coord = case facing
+  def get_move_coords
+    case facing
     when "E"
-      x_coord + 1
+      [x_coord + 1, y_coord]
     when "W"
-      x_coord - 1
-    when "N", "S"
-      x_coord
-    end
-
-    new_y_coord = case facing
+      [x_coord - 1, y_coord]
     when "N"
-      y_coord + 1
+      [x_coord, y_coord + 1]
     when "S"
-      y_coord - 1
-    when "E", "W"
-      y_coord
+      [x_coord, y_coord - 1]
     end
-    [new_x_coord, new_y_coord]
   end
 
   def move(new_coords)
@@ -54,13 +33,13 @@ class Rover
     @y_coord = new_coords[1]
   end
 
-  def execute
+  def rove
     directions.each do |direction|
       case direction
-      when :left, :right
+      when "L", "R"
         turn(direction)
-      when :move
-        new_coords = get_new_coords
+      when "M"
+        new_coords = get_move_coords
         move(new_coords) unless will_crash?(new_coords) || will_fall?(new_coords)
       end
     end
