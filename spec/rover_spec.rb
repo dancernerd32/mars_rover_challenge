@@ -168,11 +168,10 @@ describe Rover do
   describe "will_crash?" do
     let(:rover){Rover.new(0, 0, "N", "", rover_deployment)}
     before(:each) do
-      rover_positions = [[0,0], [3,2], [4,4], [3,5]]
-      rover_list = rover_positions.map do |position|
-        Rover.new(position[0], position[1], "N", "", rover_deployment)
-      end
-      allow(rover).to receive_message_chain(:rover_deployment, :rovers).and_return(rover_list)
+      rover_positions = [[0,0, "N"], [3,2, "N"], [4,4, "N"], [3,5, "N"]]
+
+      allow(rover).to receive_message_chain(
+        "rover_deployment.rover_positions").and_return(rover_positions)
     end
 
     it "returns true if there is a rover in the deployment at the provided position" do

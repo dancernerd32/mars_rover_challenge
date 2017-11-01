@@ -53,21 +53,29 @@
 # 5 1 E
 
 require 'pry'
+require_relative 'rover_deployment'
+require_relative 'rover'
 
 def collect_plateau_input
-  puts "Please enter the size of your plateau in the form <height width>"
-  puts "e.x."
-  puts "5 5"
-  gets.chomp
+  puts "Please enter the size of your plateau in the form <height width>.\ne.g.\n5 5"
+  input = gets.chomp
+  while !plateau_input_valid?(input)
+    puts "Format invalid. Please try again. \n Enter the size of your plateau in
+    the form <height width>. \nFor example:\n5 5"
+    input = gets.chomp
+  end
+  input
+end
+
+def plateau_input_valid?(input)
+  true
 end
 
 def collect_rover_input
   rover_input = []
   continue = true
-  puts "Please enter the direction and orientation of your rover"
-  puts "Use the format <x_coordinate y_coordinate direction>"
-  puts "e.x."
-  puts "1 2 N"
+  puts "Please enter the direction and orientation of your rover\nUse the format
+  <x_coordinate y_coordinate direction>\ne.g.\n1 2 N"
   rover_input << gets.chomp
   puts "Please enter the series of instructions you'd like to give the rover"
   puts "The format should be any combination of 'L' to turn left, 'R' to turn
@@ -91,7 +99,17 @@ def collect_rover_input
   end
 end
 
-input = []
-input << collect_plateau_input
-input << collect_rover_input
-puts input
+def rover_position_valid?
+  true
+end
+
+def rover_directions_valid?
+  true
+end
+
+max_coords = collect_plateau_input
+rover_attributes = collect_rover_input
+
+deployment = RoverDeployment.new(max_coords, rover_attributes)
+deployment.deploy_rovers
+puts deployment.rover_position_strings

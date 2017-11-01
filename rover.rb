@@ -48,7 +48,9 @@ class Rover
   end
 
   def will_crash?(new_coords)
-    rover_deployment.rovers.map{|rover| [rover.x_coord, rover.y_coord]}.include?(new_coords)
+    rover_deployment.rover_positions
+      .map{|position| [position[0], position[1]]}
+      .include?(new_coords)
   end
 
   def will_fall?(new_coords)
