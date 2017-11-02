@@ -24,7 +24,7 @@
 #
 # The first line of input is the upper-right coordinates of the plateau, the lower-left coordinates are assumed to be 0,0.
 #
-# The rest of the input is information pertaining to the rovers that have been deployed. Each rover has two lines of input. The first line gives the rover's position, and the second line is a series of instructions telling the rover how to explore the plateau.
+# The rest of the input is information pertaining to the rovers that have been deployed. Each rover has two lines of input. The first line gives the rover's position, and the second line is a series of directions telling the rover how to explore the plateau.
 #
 # The position is made up of two integers and a letter separated by spaces, corresponding to the x and y co-ordinates and the rover's orientation.
 #
@@ -56,60 +56,110 @@ require 'pry'
 require_relative 'rover_deployment'
 require_relative 'rover'
 
-def collect_plateau_input
-  puts "Please enter the size of your plateau in the form <height width>.\ne.g.\n5 5"
-  input = gets.chomp
-  while !plateau_input_valid?(input)
-    puts "Format invalid. Please try again. \n Enter the size of your plateau in
-    the form <height width>. \nFor example:\n5 5"
-    input = gets.chomp
+class MarsRoverChallenge
+  def initialize
   end
-  input
-end
 
-def plateau_input_valid?(input)
-  true
-end
+  def plateau_coords_text
+    "Please enter the size of your plateau.\nUse the format:
+    <height width>\ne.g. 5 5"
+  end
 
-def collect_rover_input
-  rover_input = []
-  continue = true
-  puts "Please enter the direction and orientation of your rover\nUse the format
-  <x_coordinate y_coordinate direction>\ne.g.\n1 2 N"
-  rover_input << gets.chomp
-  puts "Please enter the series of instructions you'd like to give the rover"
-  puts "The format should be any combination of 'L' to turn left, 'R' to turn
-  right, \n and 'M' to move one square forward in the direction it is facing.\n
-  This input should have no spaces"
-  puts "e.x."
-  puts "LMLMMRM"
-  rover_input << gets.chomp
+  def rover_position_initial_text
+    "Please enter the direction and orientation of your rover.\nUse the format:
+    <x_coordinate y_coordinate direction>\ne.g. 1 2 N"
+  end
 
-  while continue
-    puts "If you'd like to add another rover, enter the direction and orientation, \n
-    otherwise hit enter to deploy your rovers"
-    input = gets.chomp
-    if input == ""
-      return rover_input
-    else
-      rover_input << input
-      puts "Enter the instructions for your rover"
-      rover_input << gets.chomp
+  def rover_position_subsequent_text
+    "If you'd like to add another rover, enter the direction and orientation,\n" +
+    "otherwise hit enter to deploy your rovers."
+  end
+
+  def rover_directions_text
+    "Please enter the series of directions you'd like to give the rover.\n" +
+    "Use 'L' to turn left, 'R' to turn right, and 'M' to move one step forward.\n" +
+    "This input should be a continuous string of letters with no spaces.\n" +
+    "e.g. LMLMLMLMM"
+  end
+
+  def get_next_try_input(type)
+    puts "Format invalid. Please try again."
+    ask_for_input(type)
+    gets.chomp
+  end
+
+  def ask_for_input(type)
+    case type
+    when :plateau_coords
+      puts plateau_coords_text
+    when :rover_position_initial
+      puts rover_position_initial_text
+    when :rover_position_subsequent
+      puts rover_position_subsequent_text
+    when :rover_directions
+      puts rover_directions_text
     end
   end
+
+  def collect_valid_input(type)
+    ask_for_input(type)
+    input = gets.chomp
+    while !valid_input?(type, input)
+      input = get_next_try_input(type)
+    end
+    input
+  end
+
+  def collect_rover_input
+    rover_input = []
+    rover_input << collect_valid_input(:rover_position_initial)
+    rover_input << collect_valid_input(:rover_directions)
+    while true
+      input = collect_valid_input(:rover_position_subsequent)
+      if input == ""
+        return rover_input
+      else
+        rover_input << input
+        rover_input << collect_valid_input(:rover_directions)
+      end
+    end
+  end
+
+  def valid_input?(type, input)
+    case type
+    when :plateau_coords
+      plateau_input_valid?(input)
+    when :rover_position_initial
+      initial_rover_position_valid?(input)
+    when :rover_position_subsequent
+      subsequent_rover_position_valid?(input)
+    when :rover_directions
+      rover_directions_valid?(input)
+    end
+  end
+
+  def plateau_input_valid?(input)
+    !!/^\d+\s\d+$/.match(input)
+  end
+
+  def initial_rover_position_valid?(input)
+    !!/^\d+\s\d+\s[NESW]$/.match(input)
+  end
+
+  def subsequent_rover_position_valid?(input)
+    input == "" || initial_rover_position_valid?(input)
+  end
+
+  def rover_directions_valid?(input)
+    !!/^[RLM]*$/.match(input)
+  end
+
+  def run
+    max_coords = collect_valid_input(:plateau_coords)
+    rover_attributes = collect_rover_input
+
+    deployment = RoverDeployment.new(max_coords, rover_attributes)
+    deployment.deploy_rovers
+    puts deployment.rover_position_strings
+  end
 end
-
-def rover_position_valid?
-  true
-end
-
-def rover_directions_valid?
-  true
-end
-
-max_coords = collect_plateau_input
-rover_attributes = collect_rover_input
-
-deployment = RoverDeployment.new(max_coords, rover_attributes)
-deployment.deploy_rovers
-puts deployment.rover_position_strings
