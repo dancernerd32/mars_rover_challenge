@@ -133,23 +133,31 @@ describe Rover do
     end
   end
 
-  describe "will_fall?" do
+  describe "will_fall_in_ditch?" do
+    let(:rover) {Rover.new(0, 0, "N", "", rover_deployment)}
+
+    it "returns false if rover deployment has no fall coords" do
+      expect(rover.will_fall_in_ditch?([0,0])).to be(false)
+    end
+  end
+
+  describe "will_fall_off_plateau?" do
     let(:rover){Rover.new(0, 0, "N", "", rover_deployment)}
 
     it "returns true if the new x value is negative" do
-      expect(rover.will_fall?([-1, 0])).to be(true)
+      expect(rover.will_fall_off_plateau?([-1, 0])).to be(true)
     end
 
     it "returns true if the new y value is negative" do
-      expect(rover.will_fall?([0, -1])).to be(true)
+      expect(rover.will_fall_off_plateau?([0, -1])).to be(true)
     end
 
     it "returns true if the new x value is greater than the plateau max x value" do
-      expect(rover.will_fall?([6, 5])).to be(true)
+      expect(rover.will_fall_off_plateau?([6, 5])).to be(true)
     end
 
     it "returns true if the new y value is greater than the plateau max y value" do
-      expect(rover.will_fall?([5, 6])).to be(true)
+      expect(rover.will_fall_off_plateau?([5, 6])).to be(true)
     end
 
     it "returns false if the x value and y value are both on the grid" do
@@ -157,12 +165,22 @@ describe Rover do
       while x <= 5
         y = 0
         while y <= 5
-          expect(rover.will_fall?([x, y])).to be(false)
+          expect(rover.will_fall_off_plateau?([x, y])).to be(false)
           y += 1
         end
         x += 1
       end
     end
+  end
+
+  describe "will_fall?" do
+    let(:rover){Rover.new(0, 0, "N", "", rover_deployment)}
+    it "returns true if rover will fall off plateau" do
+      allow(rover).to receive(:will_fall_off_plateau?).and_return(true)
+      expect(rover.will_fall?([0, 0])).to be(true)
+    end
+    it "returns true if rover will fall in ditch"
+    it "returns false if rover will neither fall off plateau nor fall in ditch"
   end
 
   describe "will_crash?" do

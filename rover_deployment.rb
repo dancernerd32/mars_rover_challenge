@@ -2,10 +2,16 @@ require_relative 'rover'
 require 'pry'
 
 class RoverDeployment
-  attr_reader :max_coords, :rovers
-  def initialize(max_coords, rover_attributes)
+  attr_reader :max_coords, :rovers, :ditch_coords
+  def initialize(max_coords, rover_attributes, fall_coords=nil)
     @max_coords = max_coords.split(" ").map(&:to_i)
+    @ditch_coords = get_ditch_coords(ditch_coords)
     @rovers = create_rovers(rover_attributes)
+  end
+
+  def get_ditch_coords(ditch_coords)
+    ditch_coords.nil? ? [] : ditch_coords.split(", ").map{|coords| coords.split(" ")
+      .map(&:to_i)}
   end
 
   def organize_attributes(rover_attributes)

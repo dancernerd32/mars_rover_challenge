@@ -53,9 +53,18 @@ class Rover
       .include?(new_coords)
   end
 
-  def will_fall?(new_coords)
+  def will_fall_in_ditch?(new_coords)
+    rover_deployment.ditch_coords.include?(new_coords)
+  end
+
+  def will_fall_off_plateau?(new_coords)
     max_coords = rover_deployment.max_coords
     max_coords[0] < new_coords[0] || max_coords[1] < new_coords[1] ||
     new_coords[0] < 0 || new_coords[1] < 0
+  end
+
+
+  def will_fall?(new_coords)
+    will_fall_off_plateau?(new_coords) || will_fall_in_ditch?(new_coords)
   end
 end
