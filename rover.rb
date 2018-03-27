@@ -1,4 +1,3 @@
-######### TESTING 123
 class Rover
   attr_accessor :x_coord, :y_coord, :facing
   attr_reader :directions, :rover_deployment
